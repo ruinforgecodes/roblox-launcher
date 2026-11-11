@@ -1,35 +1,53 @@
 # RuinForge Launcher
 
-RuinForge Launcher is a separate Windows desktop application with an original RuinForge interface. It does not launch XMCL or reuse XMCL's screens. It stores Minecraft in a RuinForge-owned profile folder, supports Microsoft device-code sign-in, imports Modrinth `.mrpack` profiles, and installs the included RuinForge 26.3/Fabric pack.
+RuinForge is a Windows desktop launcher for **Roblox experiences**: sign in with Roblox, browse a catalog, keep a library of favorites, pick a server, and hand the experience to the official Roblox Player.
 
-The application is built with Electron and the MIT-licensed `minecraft-launcher-core` game-install/launch library. Microsoft passwords are entered only on Microsoft's site. The refresh token is saved with Electron `safeStorage` and is never written to a plaintext account file. Modrinth downloads are restricted to Modrinth's official CDN and checked against the pack's SHA-1 hashes before they are installed. Java 25 is discovered locally or downloaded from Eclipse Adoptium only after its published SHA-256 checksum has been verified.
+The interface is original to RuinForge. The launcher is built with Electron, uses Roblox OAuth 2.0 (authorization code + PKCE) for sign-in, and talks to the Roblox Player through Roblox's own deep link — it never asks for a Roblox password and never touches `.ROBLOSECURITY` cookies or authentication tickets.
 
-## Windows installer
+## What it does
 
-See [`release/RuinForge-Launcher-0.1.0-setup.exe`](../../../release/RuinForge-Launcher-0.1.0-setup.exe). This prototype is an unsigned x64 installer. Windows may show an unknown-publisher or SmartScreen warning. A public release should be code-signed and hosted on a RuinForge-owned HTTPS site with an independently published checksum.
+- **Roblox sign-in** — opens `roblox.com` in the default browser, receives the loopback callback on `http://127.0.0.1:53682/oauth/callback`, exchanges the code with PKCE, and stores only the refresh token (Electron `safeStorage`).
+- **Discover** — search across experience name, creator, genre, and tags; filter by genre; sort by popularity, rating, recency, or A–Z.
+- **Library** — favorites, recently played, and experiences launched through RuinForge, plus a local asset-cache summary.
+- **Servers** — suggested servers per experience with region, ping, and capacity; quick join picks the lowest-ping server.
+- **Launching** — checks for the installed Roblox Player, then opens `roblox://experiences/start?placeId=…` and falls back to the web start URL. The Roblox Player keeps its own session, so RuinForge hands off instead of injecting credentials.
+- **Downloads** — Player/asset-cache status, update checks, optional module installs, and a storage overview.
+- **Settings** — launch behaviour, graphics preset, preferred region, data folders, and account management.
 
-Sign in with the Microsoft account that owns Minecraft Java Edition. If that Microsoft account uses a Gmail address, enter that address on Microsoft's sign-in page; signing in to Google alone cannot verify Minecraft ownership. This app uses the RuinForge public Microsoft Application (client) ID; the app registration must support personal Microsoft accounts and device-code sign-in. Never create or embed a client secret.
+## Preview build
 
-If sign-in reports `AADSTS70002` or says the client must be marked as mobile, the app registration needs its desktop/public-client settings updated in Microsoft Entra: open **App registrations > RuinForge > Authentication**, add the **Mobile and desktop applications** platform, then enable **Allow public client flows** in **Advanced settings**. Only an administrator of the app registration can change these settings.
+The repository's preview environment serves `src/index.html` + `src/renderer.js` in a browser. There is no Electron IPC and no Roblox OAuth redirect there, so the renderer detects the missing desktop API and runs in a **clearly labelled preview mode**:
 
-If Microsoft accepts the one-time code but the launcher reports HTTP 403 from the Minecraft game-session service, that alone does not mean Java ownership is missing. Verify that [minecraft.net](https://www.minecraft.net/) and the official Minecraft Launcher show your Java profile for this exact Microsoft account, then retry after signing out and back in to Microsoft in your browser. The launcher shows a support reference if Microsoft returns one. Do not purchase the game again based only on this error.
+- sign-in is simulated with sample profiles (no real Roblox account is contacted);
+- launching plays the real hand-off sequence as a simulation;
+- the experience catalog is original sample data, not live Roblox data;
+- favorites, settings, and downloads are kept in the page's local storage (the preview may reset them when the environment reloads).
 
-If Xbox itself returns HTTP 403, sign in at [xbox.com](https://www.xbox.com/) with the same Microsoft account and complete its Xbox profile setup. If the profile already exists, check the account's region and age/family restrictions.
+The strict Content-Security-Policy is applied by the Electron shell as a response header (`src/main.cjs`), so the packaged app stays locked down even though `index.html` no longer carries a `meta` CSP tag.
+
+Nothing in the preview mode claims a real session or launch. The Windows build uses the real paths described above.
 
 ## Build on Windows x64
 
-- Node.js 22.16 or newer.
-- A compatible RuinForge Microsoft desktop app client ID.
-- A stable internet connection for the installer, Java, Minecraft, Fabric, and mod downloads.
+Requirements: Node.js 22.16 or newer, a Roblox OAuth 2.0 app, and an internet connection.
 
-Copy `.env.example` to `.env` and set `RUINFORGE_MICROSOFT_CLIENT_ID` to the public application client ID. Then run:
+1. Create an OAuth 2.0 app at <https://create.roblox.com/dashboard/credentials> and add the redirect URI `http://127.0.0.1:53682/oauth/callback`.
+2. Copy `.env.example` to `.env` and set `RUINFORGE_ROBLOX_CLIENT_ID`. Set `RUINFORGE_ROBLOX_CLIENT_SECRET` only if your app is a confidential client.
+3. Run:
 
 ```powershell
-npm install
+npm ci
 npm test
 npm run build
 ```
 
-The installer is written to `release-build\RuinForge-Launcher-0.1.0-setup.exe`. To test the development app locally, run `npm start`.
+The installer is written to `release-build\RuinForge-Launcher-1.0.0-setup.exe`. Run `npm start` for the development app.
 
-The included `.mrpack` targets Minecraft Java 26.3 and Fabric Loader 0.20.1. Importable `.mrpack` profiles live in the repository's `release` folder.
+`npm test` runs the Node test suite for the Roblox OAuth helpers (`src/roblox.test.cjs`).
+
+## Notes and limits
+
+- The Roblox Player must be installed once from <https://www.roblox.com/download>. RuinForge detects it under `%LOCALAPPDATA%\Roblox\Versions`.
+- Roblox does not expose a way for a third-party launcher to sign the Player in with an OAuth token. The Player uses the Roblox session already on the PC; RuinForge opens the experience and cannot read the in-game session.
+- The installer is unsigned unless you add code signing. Windows may show an unknown-publisher or SmartScreen warning.
+- RuinForge is an independent project. It is not affiliated with, endorsed by, or sponsored by Roblox Corporation.

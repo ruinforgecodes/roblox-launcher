@@ -3,202 +3,378 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-    <title>RuinForge Launcher</title>
+    <!-- The desktop shell applies the Content-Security-Policy as a response header
+         (see src/main.cjs) so the policy is enforced by Electron for the packaged
+         app instead of only by markup. -->
+    <title>RuinForge — Roblox Launcher</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2317121c'/%3E%3Cpath d='M13 29V11h8.4c3.7 0 6.1 2 6.1 5.1 0 2.2-1.2 3.8-3.2 4.6l4 8.3h-4.9l-3.4-7.3h-2.6V29H13zm4.4-10.7h3.4c1.6 0 2.5-.8 2.5-2.1s-.9-2.1-2.5-2.1h-3.4v4.2z' fill='%23ff5b4a'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="shell">
-      <aside class="sidebar">
+    <div class="app">
+      <aside class="rail">
         <div class="brand">
-          <img class="brand-logo" src="../assets/ruinforge.png" alt="RuinForge logo">
-          <span class="brand-name">RUIN<span>FORGE</span></span>
+          <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="brand-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff5b4a"></stop>
+                <stop offset="1" stop-color="#ff9f45"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="1" y="1" width="38" height="38" rx="11" fill="#17121c" stroke="#453043" stroke-width="2"></rect>
+            <path d="M13 29V11h8.4c3.7 0 6.1 2 6.1 5.1 0 2.2-1.2 3.8-3.2 4.6l4 8.3h-4.9l-3.4-7.3h-2.6V29H13zm4.4-10.7h3.4c1.6 0 2.5-.8 2.5-2.1s-.9-2.1-2.5-2.1h-3.4v4.2z" fill="url(#brand-gradient)"></path>
+          </svg>
+          <span class="brand-text">RUIN<span>FORGE</span><small>ROBLOX LAUNCHER</small></span>
         </div>
-        <div class="nav-label">YOUR SPACE</div>
-        <button class="nav-item active" data-view="home" type="button"><span class="nav-icon">⌂</span> Home</button>
-        <button class="nav-item" data-view="library" type="button"><span class="nav-icon">▦</span> My library</button>
-        <button class="nav-item" data-view="tools" type="button"><span class="nav-icon">✦</span> Toolbox</button>
-        <button class="nav-item" data-view="settings" type="button"><span class="nav-icon">⚙</span> Settings</button>
-        <div class="sidebar-bottom">
-          <div class="sidebar-line"></div>
-          <button class="nav-item" id="open-folder"><span class="nav-icon">▣</span> Game folder</button>
-          <div class="mini-profile">
-            <div class="avatar" id="sidebar-avatar">R</div>
-            <div class="account-lines">
-              <span id="sidebar-name">Not signed in</span>
-              <small id="sidebar-status">Your launcher, your world</small>
-            </div>
-            <span class="online-dot" id="account-dot"></span>
-          </div>
+
+        <div class="nav-group">
+          <div class="nav-label">PLAY</div>
+          <button class="nav-item active" data-view="home" type="button"><span class="nav-icon">◈</span> Home <kbd>1</kbd></button>
+          <button class="nav-item" data-view="discover" type="button"><span class="nav-icon">⌕</span> Discover <kbd>2</kbd></button>
+          <button class="nav-item" data-view="library" type="button"><span class="nav-icon">▦</span> Library <kbd>3</kbd></button>
+          <button class="nav-item" data-view="servers" type="button"><span class="nav-icon">◍</span> Servers <kbd>4</kbd></button>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">LAUNCHER</div>
+          <button class="nav-item" data-view="downloads" type="button"><span class="nav-icon">↓</span> Downloads <span class="nav-badge hidden" id="download-badge">0</span></button>
+          <button class="nav-item" data-view="settings" type="button"><span class="nav-icon">⚙</span> Settings</button>
+        </div>
+
+        <div class="rail-foot">
+          <button class="rail-account" id="rail-account" type="button">
+            <span class="avatar avatar-small" id="rail-avatar">?</span>
+            <span class="rail-account-lines">
+              <b id="rail-name">Not signed in</b>
+              <small id="rail-status">Connect Roblox to play</small>
+            </span>
+            <span class="status-dot" id="rail-dot"></span>
+          </button>
+          <div class="rail-build" id="rail-build">DESKTOP BUILD</div>
         </div>
       </aside>
 
-      <main class="main">
+      <div class="workspace">
         <header class="topbar">
-          <div class="breadcrumbs">RUINFORGE <span>/</span> <b id="page-name">HOME</b></div>
-          <button id="account-button" class="account-button" type="button">Sign in <span>↗</span></button>
+          <div class="crumbs">RUINFORGE <span>/</span> <b id="page-name">HOME</b></div>
+          <label class="search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="global-search" type="search" placeholder="Search experiences, creators, genres" autocomplete="off" spellcheck="false" aria-label="Search experiences">
+            <kbd>CTRL K</kbd>
+          </label>
+          <div class="top-actions">
+            <span class="build-chip hidden" id="build-chip">PREVIEW BUILD</span>
+            <button class="account-button" id="account-button" type="button">SIGN IN WITH ROBLOX <span>↗</span></button>
+          </div>
         </header>
 
-        <section id="home-view" class="view active-view">
-          <div class="hero">
-            <div class="hero-shade"></div>
-            <div class="hero-grid"></div>
-            <div class="hero-content">
-              <div class="eyebrow"><span class="spark">✦</span> THE RUINFORGE EXPERIENCE</div>
-              <h1>Built to <span>play.</span><br>Forged to win.</h1>
-              <p>Your worlds. Your settings. One home for your Minecraft setup.</p>
-              <div class="hero-tags">
-                <span class="tag-live"><i></i> MINECRAFT JAVA</span>
-                <span>26.3</span>
-                <span>FABRIC 0.20.1</span>
-              </div>
-            </div>
-            <div class="hero-mark">R</div>
-            <div class="hero-index">RF<span> / </span>001</div>
-          </div>
+        <main class="viewport" id="viewport">
+          <section id="home-view" class="view active-view">
+            <article class="hero" id="hero"></article>
 
-          <section class="library-section">
-            <div class="section-title">
-              <div>
-                <div class="eyebrow muted-eyebrow">YOUR SETUP</div>
-                <h2>Ready to drop in?</h2>
+            <div class="shelf-block">
+              <div class="shelf-head">
+                <h2>Continue playing</h2>
+                <button class="ghost-link" data-goto="library" type="button">Your library →</button>
               </div>
-              <span class="status-chip" id="install-status"><i></i> PACK INCLUDED</span>
+              <div class="shelf" id="continue-shelf"></div>
             </div>
 
-            <article class="instance-card">
-              <div class="instance-symbol"><img src="../assets/ruinforge.png" alt=""></div>
-              <div class="instance-info">
-                <div class="instance-name">RuinForge <span>CLIENT</span></div>
-                <div class="instance-meta">Minecraft Java 26.3 <span>/</span> Fabric 0.20.1 <span>/</span> PvP profile</div>
-                <div class="install-track"><div id="progress-bar"></div></div>
-                <div id="status-message" class="status-message">Your profile is ready. Sign in with Microsoft to play.</div>
-              </div>
-              <button id="play-button" class="play-button" type="button" disabled>
-                <span class="play-glyph">▶</span>
-                <span id="play-label">SIGN IN TO PLAY</span>
-              </button>
-            </article>
+            <div class="shelf-block">
+              <div class="shelf-head"><h2>Trending right now</h2><span class="shelf-note" id="trending-note"></span></div>
+              <div class="shelf" id="trending-shelf"></div>
+            </div>
+
+            <div class="shelf-block">
+              <div class="shelf-head"><h2>Fresh &amp; updated</h2><button class="ghost-link" data-goto="discover" type="button">Discover more →</button></div>
+              <div class="shelf" id="fresh-shelf"></div>
+            </div>
+
+            <div class="home-panels">
+              <article class="panel streak-panel">
+                <div class="eyebrow">STREAK</div>
+                <h3 id="streak-title">Your first week</h3>
+                <p id="streak-copy">Launch an experience to start a play streak.</p>
+                <div class="streak-track" id="streak-track"></div>
+              </article>
+              <article class="panel friends-panel">
+                <div class="eyebrow">FRIENDS ACTIVE</div>
+                <h3 id="friends-title">No friends online yet</h3>
+                <p id="friends-copy">Sign in with Roblox to see who is online.</p>
+                <div class="friend-list" id="friend-list"></div>
+              </article>
+              <article class="panel client-panel">
+                <div class="eyebrow">ROBLOX PLAYER</div>
+                <h3 id="client-title">Checking installation…</h3>
+                <p id="client-copy">The launcher hands experiences to the official Roblox Player.</p>
+                <button class="secondary-button" id="client-action" type="button">CHECK PLAYER</button>
+              </article>
+            </div>
+
+            <footer class="legal">RUINFORGE IS AN INDEPENDENT LAUNCHER. NOT AFFILIATED WITH, ENDORSED BY, OR SPONSORED BY ROBLOX CORPORATION. EXPERIENCE DATA IN THIS PREVIEW IS SAMPLE DATA.</footer>
           </section>
 
-          <div class="bottom-grid">
-            <article class="info-card featured-card">
-              <div class="card-icon orange-icon">✦</div>
-              <div class="eyebrow muted-eyebrow">MADE FOR MINECRAFT</div>
-              <h3>Your profile. Your files.</h3>
-              <p>RuinForge installs Minecraft, Fabric, mods, and packs in its own folder. Your other launchers stay untouched.</p>
+          <section id="discover-view" class="view">
+            <header class="page-head">
+              <div class="eyebrow">EXPLORE</div>
+              <h1>Discover</h1>
+              <p>Find your next world. Filter by genre, sort by what is hot, then launch straight into a server.</p>
+            </header>
+            <div class="filter-bar">
+              <div class="chips" id="genre-chips"></div>
+              <label class="select-wrap">
+                <span>Sort</span>
+                <select id="sort-select" aria-label="Sort experiences">
+                  <option value="popular">Most popular</option>
+                  <option value="rated">Top rated</option>
+                  <option value="fresh">Newest</option>
+                  <option value="az">A–Z</option>
+                </select>
+              </label>
+            </div>
+            <div class="results-meta" id="results-meta"></div>
+            <div class="card-grid" id="discover-grid"></div>
+            <div class="empty-state hidden" id="discover-empty">
+              <h3>No experiences match that search.</h3>
+              <p>Try a different keyword or clear the genre filter.</p>
+              <button class="secondary-button" id="clear-search" type="button">CLEAR SEARCH</button>
+            </div>
+          </section>
+
+          <section id="library-view" class="view">
+            <header class="page-head">
+              <div class="eyebrow">YOUR COLLECTION</div>
+              <h1>Library</h1>
+              <p>Everything you played, favorited, or pinned for later.</p>
+            </header>
+            <div class="stat-row" id="library-stats"></div>
+            <div class="tabs" id="library-tabs">
+              <button class="tab active" data-tab="all" type="button">All</button>
+              <button class="tab" data-tab="recent" type="button">Recently played</button>
+              <button class="tab" data-tab="favorites" type="button">Favorites</button>
+              <button class="tab" data-tab="installed" type="button">Played here</button>
+            </div>
+            <div class="card-grid" id="library-grid"></div>
+            <div class="empty-state hidden" id="library-empty">
+              <h3>Nothing here yet.</h3>
+              <p>Favorite an experience or launch one and it will show up in your library.</p>
+              <button class="secondary-button" data-goto="discover" type="button">BROWSE EXPERIENCES</button>
+            </div>
+          </section>
+
+          <section id="servers-view" class="view">
+            <header class="page-head">
+              <div class="eyebrow">LIVE SERVERS</div>
+              <h1>Servers</h1>
+              <p>Pick a region and drop into the healthiest server for the experience you have selected.</p>
+            </header>
+            <div class="filter-bar">
+              <label class="select-wrap">
+                <span>Region</span>
+                <select id="server-region" aria-label="Server region">
+                  <option value="auto">Closest to me</option>
+                  <option value="us">US East</option>
+                  <option value="eu">EU West</option>
+                  <option value="asia">Asia Pacific</option>
+                </select>
+              </label>
+              <label class="select-wrap">
+                <span>Experience</span>
+                <select id="server-experience" aria-label="Experience"></select>
+              </label>
+              <button class="primary-button small" id="quick-join" type="button">QUICK JOIN BEST SERVER</button>
+            </div>
+            <div class="server-list" id="server-list"></div>
+            <footer class="legal">SERVER NAMES, PINGS, AND PLAYER COUNTS ARE SAMPLE DATA IN THIS PREVIEW BUILD.</footer>
+          </section>
+
+          <section id="downloads-view" class="view">
+            <header class="page-head">
+              <div class="eyebrow">KEEP IT CURRENT</div>
+              <h1>Downloads</h1>
+              <p>Player updates, asset caches, and queued experience downloads.</p>
+            </header>
+            <div class="download-actions">
+              <button class="primary-button small" id="update-all" type="button">CHECK FOR UPDATES</button>
+              <span class="muted-note" id="download-note">Everything is up to date.</span>
+            </div>
+            <div class="download-list" id="download-list"></div>
+            <article class="panel storage-panel">
+              <div>
+                <div class="eyebrow">STORAGE</div>
+                <h3>Launcher data</h3>
+                <p id="storage-path">Data folder</p>
+              </div>
+              <div class="storage-meter">
+                <div class="storage-bar"><div id="storage-fill"></div></div>
+                <span id="storage-usage">0 MB of 4 GB used</span>
+              </div>
+              <div class="button-row">
+                <button class="secondary-button" id="open-data-folder" type="button">OPEN DATA FOLDER</button>
+                <button class="secondary-button" id="clear-cache" type="button">CLEAR ASSET CACHE</button>
+              </div>
             </article>
-            <article class="info-card account-card">
-              <div class="card-icon">◈</div>
-              <div class="eyebrow muted-eyebrow">YOUR ACCOUNT</div>
-              <h3 id="home-account-heading">Minecraft, your way.</h3>
-              <p id="home-account-description">Sign in with the Microsoft account that owns Minecraft Java. A Gmail address works if it is registered to that Microsoft account.</p>
-              <button class="text-button" id="home-signin" type="button">CONNECT ACCOUNT <span>→</span></button>
-            </article>
-          </div>
-          <footer class="footer">INDEPENDENT PROJECT · NOT AN OFFICIAL MINECRAFT PRODUCT · NOT AFFILIATED WITH MOJANG OR MICROSOFT</footer>
-        </section>
+            <footer class="legal">ROBLOX UPDATES THE PLAYER AUTOMATICALLY. THE PROGRESS AND SIZES ON THIS PAGE ARE LAUNCHER-SIDE PROTOTYPE METRICS.</footer>
+          </section>
 
-        <section id="library-view" class="view">
-          <div class="page-heading">
-            <div class="eyebrow muted-eyebrow">YOUR COLLECTION</div>
-            <h1>My library<span>.</span></h1>
-            <p>Your Minecraft setups, installed in their own safe folders.</p>
-          </div>
-          <article class="instance-card large-instance">
-            <div class="instance-symbol"><img src="../assets/ruinforge.png" alt=""></div>
-            <div class="instance-info">
-              <div class="instance-name">RuinForge <span>CLIENT</span></div>
-              <div class="instance-meta">Minecraft Java 26.3 <span>/</span> Fabric 0.20.1 <span>/</span> PvP profile</div>
-              <div id="library-folder" class="folder-path">Game files install to your RuinForge folder.</div>
-            </div>
-            <button id="library-folder-button" class="secondary-button" type="button">OPEN FOLDER</button>
-          </article>
-          <div class="section-subheading">ADD A MODRINTH PACK</div>
-          <article class="import-card">
-            <div class="import-icon">↥</div>
-            <div><h3>Import a Modrinth modpack</h3><p>Choose an .mrpack file. RuinForge checks the download hashes before installing it into its own game folder.</p></div>
-            <button id="import-button" class="secondary-button" type="button">CHOOSE .MRPACK</button>
-          </article>
-        </section>
+          <section id="settings-view" class="view">
+            <header class="page-head">
+              <div class="eyebrow">MAKE IT YOURS</div>
+              <h1>Settings</h1>
+              <p>Launch behaviour, regions, graphics, and your Roblox account.</p>
+            </header>
+            <div class="settings-grid">
+              <article class="panel">
+                <h3>Roblox account</h3>
+                <p id="settings-account-copy">Connect your Roblox account to sync favorites and launch as yourself.</p>
+                <div class="account-line" id="settings-account-line"></div>
+                <div class="button-row">
+                  <button class="secondary-button" id="settings-account-button" type="button">SIGN IN</button>
+                </div>
+              </article>
 
-        <section id="tools-view" class="view">
-          <div class="page-heading">
-            <div class="eyebrow muted-eyebrow">MORE THAN A PLAY BUTTON</div>
-            <h1>Your toolbox<span>.</span></h1>
-            <p>Jump straight to your worlds, screenshots, settings, and trusted Minecraft resources.</p>
-          </div>
-          <div class="section-subheading">YOUR GAME FILES</div>
-          <div class="tool-grid">
-            <article class="tool-card"><div class="tool-icon">▣</div><h3>World saves</h3><p>Open your single-player worlds folder.</p><button class="secondary-button" data-tool-folder="worlds" type="button">OPEN WORLDS</button></article>
-            <article class="tool-card"><div class="tool-icon">▧</div><h3>Screenshots</h3><p>Find the screenshots you captured in-game.</p><button class="secondary-button" data-tool-folder="screenshots" type="button">OPEN SCREENSHOTS</button></article>
-            <article class="tool-card"><div class="tool-icon">▤</div><h3>Resource packs</h3><p>Manage textures and resource packs for this profile.</p><button class="secondary-button" data-tool-folder="resourcepacks" type="button">OPEN RESOURCE PACKS</button></article>
-            <article class="tool-card"><div class="tool-icon">◈</div><h3>Shader packs</h3><p>Open the shader-pack folder for compatible setups.</p><button class="secondary-button" data-tool-folder="shaderpacks" type="button">OPEN SHADERS</button></article>
-            <article class="tool-card"><div class="tool-icon">⌘</div><h3>Mods</h3><p>See the mods installed for the RuinForge profile.</p><button class="secondary-button" data-tool-folder="mods" type="button">OPEN MODS</button></article>
-            <article class="tool-card"><div class="tool-icon">≡</div><h3>Logs &amp; config</h3><p>Open crash logs or adjust configuration files.</p><button class="secondary-button" data-tool-folder="logs" type="button">OPEN LOGS</button><button class="secondary-button tool-secondary" data-tool-folder="config" type="button">OPEN CONFIG</button></article>
-          </div>
-          <div class="section-subheading">DISCOVER &amp; GET HELP</div>
-          <div class="resource-grid">
-            <button class="resource-card" data-resource="modrinth" type="button"><span class="resource-icon">M</span><span><b>Modrinth</b><small>Explore community-made mods and modpacks.</small></span><span class="resource-arrow">↗</span></button>
-            <button class="resource-card" data-resource="fabric" type="button"><span class="resource-icon">F</span><span><b>Fabric</b><small>Learn about the lightweight mod loader.</small></span><span class="resource-arrow">↗</span></button>
-            <button class="resource-card" data-resource="wiki" type="button"><span class="resource-icon">W</span><span><b>Minecraft Wiki</b><small>Look up blocks, items, and game mechanics.</small></span><span class="resource-arrow">↗</span></button>
-            <button class="resource-card" data-resource="help" type="button"><span class="resource-icon">?</span><span><b>Minecraft Help</b><small>Visit official account and game support.</small></span><span class="resource-arrow">↗</span></button>
-          </div>
-          <footer class="footer">External sites open in your default browser. Only import modpacks from sources you trust.</footer>
-        </section>
+              <article class="panel">
+                <h3>Launching</h3>
+                <div class="setting-row">
+                  <div><b>Close launcher on launch</b><p>Minimise RuinForge when the Roblox Player starts.</p></div>
+                  <button class="switch" data-setting="closeOnLaunch" role="switch" aria-checked="false" type="button" aria-label="Close launcher on launch"><span></span></button>
+                </div>
+                <div class="setting-row">
+                  <div><b>Check for updates automatically</b><p>Keep the Roblox Player and asset cache current.</p></div>
+                  <button class="switch" data-setting="autoUpdate" role="switch" aria-checked="true" type="button" aria-label="Check for updates automatically"><span></span></button>
+                </div>
+                <div class="setting-row">
+                  <div><b>Low latency mode</b><p>Prefer the lowest-ping server when joining.</p></div>
+                  <button class="switch" data-setting="lowLatency" role="switch" aria-checked="false" type="button" aria-label="Low latency mode"><span></span></button>
+                </div>
+                <div class="setting-row">
+                  <div><b>Graphics preset</b><p>Applied to the Roblox Player before launch.</p></div>
+                  <label class="select-wrap compact">
+                    <select id="graphics-select" aria-label="Graphics preset">
+                      <option value="auto">Automatic</option>
+                      <option value="high">High quality</option>
+                      <option value="balanced">Balanced</option>
+                      <option value="performance">Performance</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <div><b>Preferred region</b><p>Used for quick join and server suggestions.</p></div>
+                  <label class="select-wrap compact">
+                    <select id="region-select" aria-label="Preferred region">
+                      <option value="auto">Closest to me</option>
+                      <option value="us">US East</option>
+                      <option value="eu">EU West</option>
+                      <option value="asia">Asia Pacific</option>
+                    </select>
+                  </label>
+                </div>
+              </article>
 
-        <section id="settings-view" class="view">
-          <div class="page-heading">
-            <div class="eyebrow muted-eyebrow">MAKE IT YOURS</div>
-            <h1>Settings<span>.</span></h1>
-            <p>Adjust your launcher without changing your other Minecraft profiles.</p>
-          </div>
-          <article class="settings-card">
-            <div class="setting-row">
-              <div><h3>Memory limit</h3><p>Maximum memory reserved for Minecraft. Leave some memory for Windows.</p></div>
-              <div class="setting-control"><select id="memory-setting" aria-label="Minecraft memory limit"></select><span>GB RAM</span></div>
-            </div>
-            <div class="setting-row">
-              <div><h3>Java runtime</h3><p>RuinForge finds Java 25 or securely installs a matching free runtime for you.</p></div>
-              <div id="java-setting" class="setting-badge">CHECKING</div>
-            </div>
-            <div class="setting-row">
-              <div><h3>Game files</h3><p>Worlds, screenshots, settings, and mods live in the RuinForge instance folder.</p></div>
-              <button id="settings-folder-button" class="secondary-button" type="button">OPEN GAME FOLDER</button>
-            </div>
-            <div class="setting-row danger-row">
-              <div><h3>Microsoft account</h3><p id="settings-account-description">Sign in to play with the Minecraft account you own.</p></div>
-              <button id="settings-account-button" class="secondary-button" type="button">SIGN IN</button>
-            </div>
-          </article>
-          <footer class="footer">RuinForge uses Microsoft's official sign-in. The launcher never asks for or sees your password.</footer>
-        </section>
-      </main>
-    </div>
+              <article class="panel">
+                <h3>Storage &amp; data</h3>
+                <p id="settings-storage">Launcher settings, favorites, and cached assets stay on this PC.</p>
+                <div class="button-row">
+                  <button class="secondary-button" id="settings-open-folder" type="button">OPEN DATA FOLDER</button>
+                  <button class="secondary-button" id="settings-open-logs" type="button">OPEN LOGS</button>
+                </div>
+              </article>
 
-    <div id="device-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="device-title">
-      <div class="dialog-card">
-        <button id="close-device" class="dialog-close" type="button" aria-label="Close">×</button>
-        <img class="dialog-logo" src="../assets/ruinforge.png" alt="">
-        <div class="eyebrow muted-eyebrow">SECURE MICROSOFT SIGN-IN</div>
-        <h2 id="device-title">Connect your account.</h2>
-        <p>Use the Microsoft account that owns Minecraft Java. If you use a Gmail address for that Microsoft account, enter it on Microsoft's sign-in page. A Google-only account cannot verify Minecraft ownership.</p>
-        <div id="login-waiting">
-          <div class="spinner"></div>
-          <span>Getting a one-time sign-in code…</span>
-        </div>
-        <div id="login-code-card" class="code-card hidden">
-          <div class="code-label">YOUR ONE-TIME CODE</div>
-          <div id="login-code" class="login-code">----</div>
-          <button id="open-microsoft" class="play-button modal-play" type="button">OPEN MICROSOFT SIGN-IN ↗</button>
-          <div class="code-note">Enter this code on Microsoft's page, then come back here.</div>
-        </div>
-        <div id="login-error" class="login-error hidden" role="alert"></div>
-        <button id="cancel-login" class="cancel-button" type="button">CANCEL</button>
+              <article class="panel">
+                <h3>About</h3>
+                <dl class="about-list">
+                  <div><dt>Launcher</dt><dd id="about-version">RuinForge 1.0.0</dd></div>
+                  <div><dt>Build</dt><dd id="about-build">Desktop</dd></div>
+                  <div><dt>Sign-in</dt><dd>Roblox OAuth 2.0 with PKCE</dd></div>
+                </dl>
+                <div class="button-row">
+                  <button class="secondary-button" data-link="support" type="button">ROBLOX SUPPORT</button>
+                  <button class="secondary-button" data-link="status" type="button">STATUS</button>
+                </div>
+                <p class="fine-print">RuinForge never asks for your Roblox password. Sign-in happens on roblox.com in your browser.</p>
+              </article>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
 
-    <div id="message-toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <div class="overlay hidden" id="experience-overlay">
+      <div class="sheet experience-sheet" role="dialog" aria-modal="true" aria-labelledby="exp-title">
+        <button class="sheet-close" data-close="experience-overlay" type="button" aria-label="Close">×</button>
+        <div class="exp-banner" id="exp-banner"></div>
+        <div class="exp-head">
+          <img class="exp-icon" id="exp-icon" alt="">
+          <div class="exp-heading">
+            <h2 id="exp-title">Experience</h2>
+            <p id="exp-by"></p>
+            <div class="exp-stats" id="exp-stats"></div>
+          </div>
+        </div>
+        <div class="exp-actions">
+          <button class="primary-button" id="exp-play" type="button">PLAY</button>
+          <button class="secondary-button" id="exp-favorite" type="button" aria-pressed="false">☆ FAVORITE</button>
+          <button class="ghost-button" id="exp-open-site" type="button">OPEN ON ROBLOX ↗</button>
+        </div>
+        <p class="exp-description" id="exp-description"></p>
+        <div class="exp-tags" id="exp-tags"></div>
+        <div class="exp-columns">
+          <div>
+            <h4>Suggested servers</h4>
+            <div class="mini-servers" id="exp-servers"></div>
+          </div>
+          <div>
+            <h4>Details</h4>
+            <dl class="about-list" id="exp-details"></dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="signin-overlay">
+      <div class="sheet signin-sheet" role="dialog" aria-modal="true" aria-labelledby="signin-title">
+        <button class="sheet-close" data-close="signin-overlay" type="button" aria-label="Close">×</button>
+        <div class="eyebrow">ROBLOX SIGN-IN</div>
+        <h2 id="signin-title">Connect your Roblox account.</h2>
+        <p id="signin-copy">Sign in on roblox.com and RuinForge receives only your public profile. Your password never touches the launcher.</p>
+        <div class="demo-block" id="signin-demo">
+          <div class="demo-label">SIMULATED SIGN-IN · PREVIEW ONLY</div>
+          <p class="demo-copy">This browser preview cannot complete Roblox's real OAuth redirect. Pick a demo profile to explore the launcher; the Windows build opens the real Roblox sign-in page.</p>
+          <div class="demo-profiles" id="demo-profiles"></div>
+        </div>
+        <div class="waiting hidden" id="signin-waiting">
+          <span class="spinner"></span>
+          <span id="signin-waiting-text">Waiting for Roblox…</span>
+        </div>
+        <div class="login-error hidden" id="signin-error" role="alert"></div>
+        <button class="ghost-button" id="signin-cancel" type="button">CANCEL</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="launch-overlay">
+      <div class="sheet launch-sheet" role="dialog" aria-modal="true" aria-labelledby="launch-title">
+        <div class="launch-art" id="launch-art"></div>
+        <div class="launch-body">
+          <div class="eyebrow" id="launch-eyebrow">LAUNCHING</div>
+          <h2 id="launch-title">Experience</h2>
+          <p class="launch-message" id="launch-message">Preparing your session…</p>
+          <div class="progress"><div id="launch-progress"></div></div>
+          <ol class="launch-steps" id="launch-steps"></ol>
+          <div class="playing hidden" id="launch-playing">
+            <span class="playing-dot"></span>
+            <span>In game</span>
+            <span class="playing-timer" id="playing-timer">00:00</span>
+          </div>
+          <div class="launch-actions">
+            <button class="ghost-button" id="launch-cancel" type="button">CANCEL</button>
+            <button class="secondary-button hidden" id="launch-leave" type="button">LEAVE EXPERIENCE</button>
+          </div>
+          <p class="launch-note" id="launch-note"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
     <script src="renderer.js"></script>
   </body>
 </html>
