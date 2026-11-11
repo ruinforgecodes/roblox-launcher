@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>RuinForge Launcher</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="../assets/ruinforge.png" alt="RuinForge logo">
+          <span class="brand-name">RUIN<span>FORGE</span></span>
+        </div>
+        <div class="nav-label">YOUR SPACE</div>
+        <button class="nav-item active" data-view="home" type="button"><span class="nav-icon">⌂</span> Home</button>
+        <button class="nav-item" data-view="library" type="button"><span class="nav-icon">▦</span> My library</button>
+        <button class="nav-item" data-view="tools" type="button"><span class="nav-icon">✦</span> Toolbox</button>
+        <button class="nav-item" data-view="settings" type="button"><span class="nav-icon">⚙</span> Settings</button>
+        <div class="sidebar-bottom">
+          <div class="sidebar-line"></div>
+          <button class="nav-item" id="open-folder"><span class="nav-icon">▣</span> Game folder</button>
+          <div class="mini-profile">
+            <div class="avatar" id="sidebar-avatar">R</div>
+            <div class="account-lines">
+              <span id="sidebar-name">Not signed in</span>
+              <small id="sidebar-status">Your launcher, your world</small>
+            </div>
+            <span class="online-dot" id="account-dot"></span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="breadcrumbs">RUINFORGE <span>/</span> <b id="page-name">HOME</b></div>
+          <button id="account-button" class="account-button" type="button">Sign in <span>↗</span></button>
+        </header>
+
+        <section id="home-view" class="view active-view">
+          <div class="hero">
+            <div class="hero-shade"></div>
+            <div class="hero-grid"></div>
+            <div class="hero-content">
+              <div class="eyebrow"><span class="spark">✦</span> THE RUINFORGE EXPERIENCE</div>
+              <h1>Built to <span>play.</span><br>Forged to win.</h1>
+              <p>Your worlds. Your settings. One home for your Minecraft setup.</p>
+              <div class="hero-tags">
+                <span class="tag-live"><i></i> MINECRAFT JAVA</span>
+                <span>26.3</span>
+                <span>FABRIC 0.20.1</span>
+              </div>
+            </div>
+            <div class="hero-mark">R</div>
+            <div class="hero-index">RF<span> / </span>001</div>
+          </div>
+
+          <section class="library-section">
+            <div class="section-title">
+              <div>
+                <div class="eyebrow muted-eyebrow">YOUR SETUP</div>
+                <h2>Ready to drop in?</h2>
+              </div>
+              <span class="status-chip" id="install-status"><i></i> PACK INCLUDED</span>
+            </div>
+
+            <article class="instance-card">
+              <div class="instance-symbol"><img src="../assets/ruinforge.png" alt=""></div>
+              <div class="instance-info">
+                <div class="instance-name">RuinForge <span>CLIENT</span></div>
+                <div class="instance-meta">Minecraft Java 26.3 <span>/</span> Fabric 0.20.1 <span>/</span> PvP profile</div>
+                <div class="install-track"><div id="progress-bar"></div></div>
+                <div id="status-message" class="status-message">Your profile is ready. Sign in with Microsoft to play.</div>
+              </div>
+              <button id="play-button" class="play-button" type="button" disabled>
+                <span class="play-glyph">▶</span>
+                <span id="play-label">SIGN IN TO PLAY</span>
+              </button>
+            </article>
+          </section>
+
+          <div class="bottom-grid">
+            <article class="info-card featured-card">
+              <div class="card-icon orange-icon">✦</div>
+              <div class="eyebrow muted-eyebrow">MADE FOR MINECRAFT</div>
+              <h3>Your profile. Your files.</h3>
+              <p>RuinForge installs Minecraft, Fabric, mods, and packs in its own folder. Your other launchers stay untouched.</p>
+            </article>
+            <article class="info-card account-card">
+              <div class="card-icon">◈</div>
+              <div class="eyebrow muted-eyebrow">YOUR ACCOUNT</div>
+              <h3 id="home-account-heading">Minecraft, your way.</h3>
+              <p id="home-account-description">Sign in with the Microsoft account that owns Minecraft Java. A Gmail address works if it is registered to that Microsoft account.</p>
+              <button class="text-button" id="home-signin" type="button">CONNECT ACCOUNT <span>→</span></button>
+            </article>
+          </div>
+          <footer class="footer">INDEPENDENT PROJECT · NOT AN OFFICIAL MINECRAFT PRODUCT · NOT AFFILIATED WITH MOJANG OR MICROSOFT</footer>
+        </section>
+
+        <section id="library-view" class="view">
+          <div class="page-heading">
+            <div class="eyebrow muted-eyebrow">YOUR COLLECTION</div>
+            <h1>My library<span>.</span></h1>
+            <p>Your Minecraft setups, installed in their own safe folders.</p>
+          </div>
+          <article class="instance-card large-instance">
+            <div class="instance-symbol"><img src="../assets/ruinforge.png" alt=""></div>
+            <div class="instance-info">
+              <div class="instance-name">RuinForge <span>CLIENT</span></div>
+              <div class="instance-meta">Minecraft Java 26.3 <span>/</span> Fabric 0.20.1 <span>/</span> PvP profile</div>
+              <div id="library-folder" class="folder-path">Game files install to your RuinForge folder.</div>
+            </div>
+            <button id="library-folder-button" class="secondary-button" type="button">OPEN FOLDER</button>
+          </article>
+          <div class="section-subheading">ADD A MODRINTH PACK</div>
+          <article class="import-card">
+            <div class="import-icon">↥</div>
+            <div><h3>Import a Modrinth modpack</h3><p>Choose an .mrpack file. RuinForge checks the download hashes before installing it into its own game folder.</p></div>
+            <button id="import-button" class="secondary-button" type="button">CHOOSE .MRPACK</button>
+          </article>
+        </section>
+
+        <section id="tools-view" class="view">
+          <div class="page-heading">
+            <div class="eyebrow muted-eyebrow">MORE THAN A PLAY BUTTON</div>
+            <h1>Your toolbox<span>.</span></h1>
+            <p>Jump straight to your worlds, screenshots, settings, and trusted Minecraft resources.</p>
+          </div>
+          <div class="section-subheading">YOUR GAME FILES</div>
+          <div class="tool-grid">
+            <article class="tool-card"><div class="tool-icon">▣</div><h3>World saves</h3><p>Open your single-player worlds folder.</p><button class="secondary-button" data-tool-folder="worlds" type="button">OPEN WORLDS</button></article>
+            <article class="tool-card"><div class="tool-icon">▧</div><h3>Screenshots</h3><p>Find the screenshots you captured in-game.</p><button class="secondary-button" data-tool-folder="screenshots" type="button">OPEN SCREENSHOTS</button></article>
+            <article class="tool-card"><div class="tool-icon">▤</div><h3>Resource packs</h3><p>Manage textures and resource packs for this profile.</p><button class="secondary-button" data-tool-folder="resourcepacks" type="button">OPEN RESOURCE PACKS</button></article>
+            <article class="tool-card"><div class="tool-icon">◈</div><h3>Shader packs</h3><p>Open the shader-pack folder for compatible setups.</p><button class="secondary-button" data-tool-folder="shaderpacks" type="button">OPEN SHADERS</button></article>
+            <article class="tool-card"><div class="tool-icon">⌘</div><h3>Mods</h3><p>See the mods installed for the RuinForge profile.</p><button class="secondary-button" data-tool-folder="mods" type="button">OPEN MODS</button></article>
+            <article class="tool-card"><div class="tool-icon">≡</div><h3>Logs &amp; config</h3><p>Open crash logs or adjust configuration files.</p><button class="secondary-button" data-tool-folder="logs" type="button">OPEN LOGS</button><button class="secondary-button tool-secondary" data-tool-folder="config" type="button">OPEN CONFIG</button></article>
+          </div>
+          <div class="section-subheading">DISCOVER &amp; GET HELP</div>
+          <div class="resource-grid">
+            <button class="resource-card" data-resource="modrinth" type="button"><span class="resource-icon">M</span><span><b>Modrinth</b><small>Explore community-made mods and modpacks.</small></span><span class="resource-arrow">↗</span></button>
+            <button class="resource-card" data-resource="fabric" type="button"><span class="resource-icon">F</span><span><b>Fabric</b><small>Learn about the lightweight mod loader.</small></span><span class="resource-arrow">↗</span></button>
+            <button class="resource-card" data-resource="wiki" type="button"><span class="resource-icon">W</span><span><b>Minecraft Wiki</b><small>Look up blocks, items, and game mechanics.</small></span><span class="resource-arrow">↗</span></button>
+            <button class="resource-card" data-resource="help" type="button"><span class="resource-icon">?</span><span><b>Minecraft Help</b><small>Visit official account and game support.</small></span><span class="resource-arrow">↗</span></button>
+          </div>
+          <footer class="footer">External sites open in your default browser. Only import modpacks from sources you trust.</footer>
+        </section>
+
+        <section id="settings-view" class="view">
+          <div class="page-heading">
+            <div class="eyebrow muted-eyebrow">MAKE IT YOURS</div>
+            <h1>Settings<span>.</span></h1>
+            <p>Adjust your launcher without changing your other Minecraft profiles.</p>
+          </div>
+          <article class="settings-card">
+            <div class="setting-row">
+              <div><h3>Memory limit</h3><p>Maximum memory reserved for Minecraft. Leave some memory for Windows.</p></div>
+              <div class="setting-control"><select id="memory-setting" aria-label="Minecraft memory limit"></select><span>GB RAM</span></div>
+            </div>
+            <div class="setting-row">
+              <div><h3>Java runtime</h3><p>RuinForge finds Java 25 or securely installs a matching free runtime for you.</p></div>
+              <div id="java-setting" class="setting-badge">CHECKING</div>
+            </div>
+            <div class="setting-row">
+              <div><h3>Game files</h3><p>Worlds, screenshots, settings, and mods live in the RuinForge instance folder.</p></div>
+              <button id="settings-folder-button" class="secondary-button" type="button">OPEN GAME FOLDER</button>
+            </div>
+            <div class="setting-row danger-row">
+              <div><h3>Microsoft account</h3><p id="settings-account-description">Sign in to play with the Minecraft account you own.</p></div>
+              <button id="settings-account-button" class="secondary-button" type="button">SIGN IN</button>
+            </div>
+          </article>
+          <footer class="footer">RuinForge uses Microsoft's official sign-in. The launcher never asks for or sees your password.</footer>
+        </section>
+      </main>
+    </div>
+
+    <div id="device-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="device-title">
+      <div class="dialog-card">
+        <button id="close-device" class="dialog-close" type="button" aria-label="Close">×</button>
+        <img class="dialog-logo" src="../assets/ruinforge.png" alt="">
+        <div class="eyebrow muted-eyebrow">SECURE MICROSOFT SIGN-IN</div>
+        <h2 id="device-title">Connect your account.</h2>
+        <p>Use the Microsoft account that owns Minecraft Java. If you use a Gmail address for that Microsoft account, enter it on Microsoft's sign-in page. A Google-only account cannot verify Minecraft ownership.</p>
+        <div id="login-waiting">
+          <div class="spinner"></div>
+          <span>Getting a one-time sign-in code…</span>
+        </div>
+        <div id="login-code-card" class="code-card hidden">
+          <div class="code-label">YOUR ONE-TIME CODE</div>
+          <div id="login-code" class="login-code">----</div>
+          <button id="open-microsoft" class="play-button modal-play" type="button">OPEN MICROSOFT SIGN-IN ↗</button>
+          <div class="code-note">Enter this code on Microsoft's page, then come back here.</div>
+        </div>
+        <div id="login-error" class="login-error hidden" role="alert"></div>
+        <button id="cancel-login" class="cancel-button" type="button">CANCEL</button>
+      </div>
+    </div>
+
+    <div id="message-toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <script src="renderer.js"></script>
+  </body>
+</html>

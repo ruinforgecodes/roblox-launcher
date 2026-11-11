@@ -1,0 +1,62 @@
+{
+  "name": "ruinforge-launcher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The standalone RuinForge Minecraft launcher",
+  "main": "src/main.cjs",
+  "author": "RuinForge",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "prestart": "node scripts/write-config.cjs",
+    "build": "node scripts/write-config.cjs && electron-builder --win nsis --x64",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "adm-zip": "0.5.16",
+    "minecraft-launcher-core": "3.18.2"
+  },
+  "devDependencies": {
+    "electron": "43.8.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.ruinforge.launcher",
+    "productName": "RuinForge Launcher",
+    "asar": true,
+    "directories": {
+      "output": "release-build",
+      "buildResources": "assets"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../../../release/RuinForge-Client-3.26.3+mc26.3.mrpack",
+        "to": "packs/RuinForge-Client-3.26.3+mc26.3.mrpack"
+      }
+    ],
+    "win": {
+      "icon": "assets/ruinforge.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "RuinForge-Launcher-${version}-setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "RuinForge Launcher"
+    }
+  }
+}
